@@ -18,7 +18,6 @@ dependencies:
 
   # Misc
   - black
-  - nb_black
   - flake8
   - jupyterlab
   - pdbpp
