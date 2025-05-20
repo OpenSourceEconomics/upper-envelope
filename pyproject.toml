@@ -4,41 +4,50 @@
 [project]
 name               = "upper_envelope"
 description        = "Upper envelope scan for dynamic discrete-continuous life cycle models."
+version         = "0.1.3"
 requires-python    = ">=3.10"
+dependencies       = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "jax"
+]
+keywords = [
+    "Dynamic programming",
+    "Econometrics",
+    "Economics",
+    "Life cycle models",
+    "Statistics",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
 authors            = [
   { name="Max Blesch", email="maximilian.blesch@hu-berlin.de" },
-  { name="Sebastian Gsell", email="sebastian.gsell@econ.lmu.de" },
+  { name="Sebastian Gsell", email="gsell.sebastian@gmail.com" },
 ]
-classifiers        = [
-  "Development Status :: 1 - Planning",
-  "Intended Audience :: Science/Research",
-  "Operating System :: MacOS :: MacOS X",
-  "Operating System :: Microsoft :: Windows",
-  "Operating System :: POSIX",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3 :: Only",
-  "Topic :: Scientific/Engineering",
-  "Topic :: Software Development :: Build Tools",
+maintainers = [
+  { name="Sebastian Gsell", email="gsell.sebastian@gmail.com" },
 ]
-keywords           = []       # if you have any
-dependencies       = []       # list runtime deps here, e.g. ["numpy>=1.25"]
-dynamic = ["version"]
 
 [project.readme]
 file = "README.md"
 content-type = "text/markdown"
 
 [project.license]
-text = "MIT"
+file = "LICENSE"
 
 [project.urls]
-"Github" = "https://github.com/OpensourceEconomics/upper-envelope"
-
-[project.scripts]
-upper_envelope = "upper_envelope.cli:cli"
-
-[tool.setuptools.packages.find]
-where = ["src"]
+Github = "https://github.com/OpensourceEconomics/upper-envelope"
 
 
 # ======================================================================================
@@ -46,15 +55,26 @@ where = ["src"]
 # ======================================================================================
 
 [build-system]
-requires = [
-  "setuptools>=61.0.0",  # setuptools PEP-621 support
-  "wheel",
-  "setuptools_scm[toml]>=6.0"
-]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch_vcs"]
+build-backend = "hatchling.build"
 
-[tool.setuptools_scm]
-write_to = "src/upper_envelope/_version.py"
+[tool.hatch.build.hooks.vcs]
+version-file = "src/upper_envelope/_version.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["tests"]
+only-packages = true
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
+sources = ["src"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
 
 
 # ======================================================================================
