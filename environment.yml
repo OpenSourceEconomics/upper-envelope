@@ -4,27 +4,23 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.10
+  - python=3.11
   - pip
   - pytest
   - pytest-cov
   - pytest-xdist
 
   # Package dependencies
-  - estimagic
   - numpy
   - scipy
   - numba
-  - pandas
   - jax
-  - networkx
 
   # Misc
   - black
   - nb_black
   - flake8
   - jupyterlab
-  - matplotlib
   - pdbpp
   - pre-commit
   - setuptools_scm
