@@ -106,6 +106,13 @@ def fues_jax(
         else n_constrained_points_to_add
     )
 
+    # Set default value of final grid size to 1.2 times current if not defined
+    n_final_wealth_grid = (
+        int(1.2 * endog_grid.shape[0])
+        if n_final_wealth_grid is None
+        else n_final_wealth_grid
+    )
+
     # Check if a non-concave region coincides with the credit constrained region.
     # This happens when there is a non-monotonicity in the endogenous wealth grid
     # that goes below the first point (the minimal wealth, below it is optimal to
@@ -202,7 +209,9 @@ def fues_jax_unconstrained(
     """
     # Set default value of final grid size to 1.2 times current if not defined
     n_final_wealth_grid = (
-        int(1.2 * (len(policy))) if n_final_wealth_grid is None else n_final_wealth_grid
+        int(1.2 * endog_grid.shape[0])
+        if n_final_wealth_grid is None
+        else n_final_wealth_grid
     )
 
     idx_sort = jnp.argsort(endog_grid)
