@@ -4,6 +4,7 @@
 [project]
 name               = "upper_envelope"
 description        = "Upper envelope scan for dynamic discrete-continuous life cycle models."
+version         = "0.1.3"
 requires-python    = ">=3.10"
 dependencies       = [
     "numpy",
@@ -11,9 +12,15 @@ dependencies       = [
     "scipy",
     "jax"
 ]
-dynamic = ["version"]
+keywords = [
+    "Dynamic programming",
+    "Econometrics",
+    "Economics",
+    "Life cycle models",
+    "Statistics",
+]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: MacOS :: MacOS X",
@@ -22,17 +29,22 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
 ]
 authors            = [
   { name="Max Blesch", email="maximilian.blesch@hu-berlin.de" },
-  { name="Sebastian Gsell", email="sebastian.gsell@econ.lmu.de" },
+  { name="Sebastian Gsell", email="gsell.sebastian@gmail.com" },
+]
+maintainers = [
+  { name="Sebastian Gsell", email="gsell.sebastian@gmail.com" },
 ]
 
 [project.readme]
 file = "README.md"
 content-type = "text/markdown"
+
+[project.license]
+file = "LICENSE"
 
 [project.urls]
 Github = "https://github.com/OpensourceEconomics/upper-envelope"
