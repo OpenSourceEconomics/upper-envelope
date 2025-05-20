@@ -23,6 +23,8 @@ jobs:
         python-version:
           - '3.10'
           - '3.11'
+          - '3.12'
+          - '3.13'
     steps:
       - uses: actions/checkout@v3
       - name: create build environment
@@ -42,7 +44,7 @@ jobs:
           micromamba activate upper-envelope
           pytest --cov-report=xml --cov=./
       - name: Upload coverage report.
-        if: runner.os == 'Linux' && matrix.python-version == '3.10'
+        if: runner.os == 'Linux' && matrix.python-version == '3.12'
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
