@@ -12,14 +12,12 @@ dependencies:
   - jax
   - numpy
   - numba
-  - pandas
   - pyyaml
 
   # Testing infrastructure
   - pytest
   - pytest-cov
   - pytest-xdist
-
-  # Install locally
   - pip:
+      # Install locally
       - -e ../
