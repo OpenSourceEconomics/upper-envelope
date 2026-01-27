@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from numba import njit
 from numpy.testing import assert_array_almost_equal as aaae
 
 import upper_envelope as upenv
@@ -45,6 +46,15 @@ def utility_crra(consumption: np.array, choice: int, params: dict) -> np.array:
     utility = utility_consumption - (1 - choice) * params["delta"]
 
     return utility
+
+
+@njit
+def value_func_numba(
+    consumption, choice, beta, rho, delta, continuation_at_zero_savings
+):
+    utility_consumption = (consumption ** (1 - rho) - 1) / (1 - rho)
+    utility = utility_consumption - (1 - choice) * delta
+    return utility + beta * continuation_at_zero_savings
 
 
 @pytest.fixture
@@ -91,18 +101,19 @@ def test_fast_upper_envelope_wrapper(period, setup_model):
 
     params, state_choice_vec, _exog_savings_grid = setup_model
 
-    def value_func(consumption, choice, params):
-        return (
-            utility_crra(consumption, choice, params) + params["beta"] * value_egm[1, 0]
-        )
-
     endog_grid_refined, policy_refined, value_refined = upenv.fues_numba(
         endog_grid=policy_egm[0, 1:],
         policy=policy_egm[1, 1:],
         value=value_egm[1, 1:],
         expected_value_zero_savings=value_egm[1, 0],
-        value_function=value_func,
-        value_function_args=(state_choice_vec["choice"], params),
+        value_function=value_func_numba,
+        value_function_args=(
+            state_choice_vec["choice"],
+            params["beta"],
+            params["rho"],
+            params["delta"],
+            value_egm[1, 0],
+        ),
     )
 
     wealth_max_to_test = np.max(endog_grid_refined[~np.isnan(endog_grid_refined)]) + 100
@@ -193,18 +204,19 @@ def test_fast_upper_envelope_against_fedor(period, setup_model):
         ~np.isnan(_value_fedor).any(axis=0),
     ]
 
-    def value_func(consumption, choice, params):
-        return (
-            utility_crra(consumption, choice, params) + params["beta"] * value_egm[1, 0]
-        )
-
     endog_grid_fues, policy_fues, value_fues = upenv.fues_numba(
         endog_grid=policy_egm[0, 1:],
         policy=policy_egm[1, 1:],
         value=value_egm[1, 1:],
         expected_value_zero_savings=value_egm[1, 0],
-        value_function=value_func,
-        value_function_args=(state_choice_vec["choice"], params),
+        value_function=value_func_numba,
+        value_function_args=(
+            state_choice_vec["choice"],
+            params["beta"],
+            params["rho"],
+            params["delta"],
+            value_egm[1, 0],
+        ),
     )
 
     wealth_max_to_test = np.max(endog_grid_fues[~np.isnan(endog_grid_fues)]) + 100
