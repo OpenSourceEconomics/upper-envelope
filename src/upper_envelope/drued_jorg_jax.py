@@ -8,7 +8,7 @@ import jax.numpy as jnp
 
 
 @partial(jax.jit, static_argnames=["value_function"])
-def upper_jorg_drued(
+def drued_jorg_jax(
     endog_grid: jnp.ndarray,
     policy: jnp.ndarray,
     value: jnp.ndarray,
@@ -32,7 +32,7 @@ def upper_jorg_drued(
     if value_function_kwargs is None:
         value_function_kwargs = {}
 
-    # Segment interpolation weights for each adjacent pair.
+    # Segment interpolation weights for each adjacent pair. We add 1e-16 to avoid zeros. Should not happen anyway.
     dm = endog_grid[1:] - endog_grid[:-1]  # (N-1,)
     eps = 1e-16
     weight = (m_grid[None, :] - endog_grid[:-1, None]) / (dm[:, None] + eps)  # (N-1, M)

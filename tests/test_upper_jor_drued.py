@@ -124,7 +124,7 @@ def test_upper_jorg_drued_matches_fues_on_safe_segments(period, setup_model):
     m_max = float(np.max(policy_egm[0, 1:]))
     m_grid = np.linspace(m_min, m_max, 500)
 
-    endog_out, policy_out, value_out = upenv.upper_jorg_drued(
+    endog_out, policy_out, value_out = upenv.drued_jorg_jax(
         endog_grid=jnp.asarray(policy_egm[0, 1:]),
         policy=jnp.asarray(policy_egm[1, 1:]),
         value=jnp.asarray(value_egm[1, 1:]),
