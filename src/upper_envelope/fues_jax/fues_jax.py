@@ -11,7 +11,6 @@ from typing import Callable, Dict, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
-import numpy as np
 from jax import vmap
 
 from upper_envelope.fues_jax.check_and_scan_funcs import (
@@ -124,7 +123,7 @@ def fues_jax(
 
     # Because of jax, we always need to perform the same set of computations. Hence,
     # if there is no wealth grid point below the first, we just add nans thereafter.
-    min_id = np.argmin(endog_grid)
+    min_id = jnp.argmin(endog_grid)
     min_wealth_grid = endog_grid[min_id]
 
     # This is the condition, which we do not use at the moment.
