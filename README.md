@@ -1,4 +1,9 @@
-# Fast Upper Envelope Scan (FUES)
+# Upper-envelope package
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+[![PyPI version](https://badge.fury.io/py/upper-envelopes.svg)](https://badge.fury.io/py/upper-envelopes)
+[![Downloads](https://pepy.tech/badge/upper-envelopes)](https://pepy.tech/project/upper-envelopes)
 
 [![Continuous Integration Workflow](https://github.com/OpenSourceEconomics/upper-envelope/actions/workflows/main.yml/badge.svg)](https://github.com/OpenSourceEconomics/upper-envelope/actions/workflows/main.yml)
 [![Codecov](https://codecov.io/gh/OpenSourceEconomics/upper-envelope/branch/main/graph/badge.svg)](https://app.codecov.io/gh/OpenSourceEconomics/upper-envelope)
