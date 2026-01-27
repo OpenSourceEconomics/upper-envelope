@@ -14,7 +14,8 @@ The following implementations are available:
   `numba` versions are available. We provide the original version without endogenous
   jump detection.
 
-- Line segment interpolation based on Druedahl & Jorgensen (2017). Available in `jax`.
+- Line segment interpolation and selection of the upper envelope based on Druedahl &
+  Jorgensen (2017). Available in `jax`.
 
 - Also contained for test reasons is the original upper-envelope implementation from
   Iskhakov et al. (2017). It is not optimized and can not yet be imported when
