@@ -20,7 +20,7 @@ The following implementations are available:
   jump detection.
 
 - Line segment interpolation and selection of the upper envelope based on Druedahl &
-  Jorgensen (2017). Available in `jax`.
+  Jorgensen (2017). Both `jax` and `numba` versions are available.
 
 - Also contained for test reasons is the original upper-envelope implementation from
   Iskhakov et al. (2017). It is not optimized and can not yet be imported when
