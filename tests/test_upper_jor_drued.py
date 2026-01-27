@@ -1,4 +1,4 @@
-"""Tests for `upper_jor_drued`.
+"""Tests for `upper_jorg_drued`.
 
 We compare against `upenv.fues_jax`, but only on evaluation points that lie on
 reference line segments that are not affected by explicit intersection handling.
@@ -13,7 +13,8 @@ We therefore:
 2) build a boolean mask on the *given* `m_grid` selecting points that fall inside
    non-degenerate reference segments (strictly increasing in `m`)
 3) interpolate the reference onto `m_grid` using only those safe segments
-4) compare `upper_jor_drued` to that reference on the masked points
+4) compare `upper_jorg_drued` to that reference on the masked points
+
 """
 
 from pathlib import Path
@@ -27,12 +28,13 @@ from numpy.testing import assert_allclose
 
 import upper_envelope as upenv
 
-
 TEST_DIR = Path(__file__).parent
 TEST_RESOURCES_DIR = TEST_DIR / "resources"
 
 
-def utility_crra(consumption: jnp.ndarray, choice: int, params: Dict[str, float]) -> jnp.ndarray:
+def utility_crra(
+    consumption: jnp.ndarray, choice: int, params: Dict[str, float]
+) -> jnp.ndarray:
     utility_consumption = (consumption ** (1 - params["rho"]) - 1) / (1 - params["rho"])
     utility = utility_consumption - (1 - choice) * params["delta"]
     return utility
@@ -45,9 +47,10 @@ def interpolate_on_safe_reference_segments(
 ):
     """Interpolate reference (ref_m, ref_y) onto m_grid, ignoring unsafe segments.
 
-    A "safe" segment is any adjacent pair (ref_m[i], ref_m[i+1]) with ref_m[i+1] > ref_m[i].
-    For each x in m_grid, we take the maximum interpolated value over all safe segments
-    covering x. This avoids ambiguity around duplicated ref_m values.
+    A "safe" segment is any adjacent pair (ref_m[i], ref_m[i+1]) with ref_m[i+1] >
+    ref_m[i]. For each x in m_grid, we take the maximum interpolated value over all safe
+    segments covering x. This avoids ambiguity around duplicated ref_m values.
+
     """
 
     dm = ref_m[1:] - ref_m[:-1]
@@ -76,7 +79,7 @@ def setup_model():
 
 
 @pytest.mark.parametrize("period", [2, 4, 9, 10, 18])
-def test_upper_jor_drued_matches_fues_on_safe_segments(period, setup_model):
+def test_upper_jorg_drued_matches_fues_on_safe_segments(period, setup_model):
     value_egm = np.genfromtxt(
         TEST_RESOURCES_DIR / f"upper_envelope_period_tests/val{period}.csv",
         delimiter=",",
@@ -92,7 +95,9 @@ def test_upper_jor_drued_matches_fues_on_safe_segments(period, setup_model):
 
     def value_func(consumption, choice, params):
         # Same convention as existing tests: includes continuation value.
-        return utility_crra(consumption, choice, params) + params["beta"] * value_egm[1, 0]
+        return (
+            utility_crra(consumption, choice, params) + params["beta"] * value_egm[1, 0]
+        )
 
     ref_m, ref_c, ref_v = upenv.fues_jax(
         endog_grid=jnp.asarray(policy_egm[0, 1:]),
@@ -119,7 +124,7 @@ def test_upper_jor_drued_matches_fues_on_safe_segments(period, setup_model):
     m_max = float(np.max(policy_egm[0, 1:]))
     m_grid = np.linspace(m_min, m_max, 500)
 
-    endog_out, policy_out, value_out = upenv.upper_jor_drued(
+    endog_out, policy_out, value_out = upenv.upper_jorg_drued(
         endog_grid=jnp.asarray(policy_egm[0, 1:]),
         policy=jnp.asarray(policy_egm[1, 1:]),
         value=jnp.asarray(value_egm[1, 1:]),
@@ -171,7 +176,7 @@ def test_upper_jor_drued_matches_fues_on_safe_segments(period, setup_model):
     assert_allclose(value_out[1:][good], v_ref[good], rtol=1e-7, atol=1e-7)
 
     # Policy can differ even when value matches because:
-    # - `upper_jor_drued` includes a consume-all candidate with policy == m_grid
+    # - `upper_jorg_drued` includes a consume-all candidate with policy == m_grid
     # - `fues_jax` does not explicitly expose that candidate as a segment
     # - near kinks, the value envelope can have multiple near-ties with different policies
     # We therefore only assert value agreement here.

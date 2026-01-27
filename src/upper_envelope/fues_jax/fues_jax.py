@@ -36,7 +36,7 @@ def fues_jax(
     expected_value_zero_savings: jnp.ndarray | float,
     value_function: Callable,
     value_function_args: Optional[Tuple] = (),
-    value_function_kwargs: Optional[Dict] = {},
+    value_function_kwargs: Optional[Dict] = None,
     n_constrained_points_to_add=None,
     n_final_wealth_grid=None,
     jump_thresh=2,
@@ -98,6 +98,9 @@ def fues_jax(
             containing refined value function.
 
     """
+    if value_function_kwargs is None:
+        value_function_kwargs = {}
+
     # Set default of n_constrained_points_to_add to 10% of the grid size
     n_constrained_points_to_add = (
         endog_grid.shape[0] // 10
@@ -831,6 +834,7 @@ def select_and_calculate_intersection(
 def _compute_value(
     consumption, value_function, value_function_args, value_function_kwargs
 ):
+    """Helper to compute value given consumption and value function."""
     value = value_function(
         consumption,
         *value_function_args,

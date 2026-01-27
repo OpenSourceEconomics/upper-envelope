@@ -1,3 +1,3 @@
 from upper_envelope.fues_jax.fues_jax import fues_jax, fues_jax_unconstrained
 from upper_envelope.fues_numba.fues_numba import fues_numba, fues_numba_unconstrained
-from upper_envelope.upper_jor_drued import upper_jor_drued
+from upper_envelope.upper_jorg_drued import upper_jorg_drued

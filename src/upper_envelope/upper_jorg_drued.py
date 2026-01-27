@@ -8,7 +8,7 @@ import jax.numpy as jnp
 
 
 @partial(jax.jit, static_argnames=["value_function"])
-def upper_jor_drued(
+def upper_jorg_drued(
     endog_grid: jnp.ndarray,
     policy: jnp.ndarray,
     value: jnp.ndarray,
@@ -25,15 +25,10 @@ def upper_jor_drued(
     For each point on ``m_grid``, we take the pointwise maximum over all segment
     interpolants and an additional "consume-all" candidate.
 
-    This function intentionally does *not*:
-    - sort inputs
-    - detect or insert intersection points
-    - apply FUES jump/scan logic
-
     Returns arrays with the convention that index 0 corresponds to zero wealth:
     ``value_out[0] = expected_value_zero_savings`` and ``endog_out[0] = policy_out[0] = 0``.
-    """
 
+    """
     if value_function_kwargs is None:
         value_function_kwargs = {}
 
@@ -48,12 +43,13 @@ def upper_jor_drued(
     outside = (weight < 0.0) | (weight > 1.0)
     v_interp = jnp.where(outside, -jnp.inf, v_interp)
 
-    # Consume-all candidate.
-    c_all = m_grid
-    v_all = value_function(c_all, *value_function_args, **value_function_kwargs)
+    # Compute closed form values
+    v_all = jax.vmap(_compute_value, in_axes=(0, None, None, None))(
+        m_grid, value_function, value_function_args, value_function_kwargs
+    )
 
     v_stack = jnp.vstack((v_interp, v_all[None, :]))
-    c_stack = jnp.vstack((c_interp, c_all[None, :]))
+    c_stack = jnp.vstack((c_interp, m_grid[None, :]))
 
     best = jnp.argmax(v_stack, axis=0)
     grid_idx = jnp.arange(m_grid.size)
@@ -67,3 +63,15 @@ def upper_jor_drued(
     value_out = jnp.concatenate((jnp.array([expected_value_zero_savings]), value_best))
 
     return endog_out, policy_out, value_out
+
+
+def _compute_value(
+    consumption, value_function, value_function_args, value_function_kwargs
+):
+    """Helper to compute value given consumption and value function."""
+    value = value_function(
+        consumption,
+        *value_function_args,
+        **value_function_kwargs,
+    )
+    return value
