@@ -128,6 +128,10 @@ def fues_jax(
 
     # This is the condition, which we do not use at the moment.
     # closed_form_cond = min_wealth_grid < endog_grid[0]
+    # NOTE: We intentionally mirror NumPy's `linspace` behavior used in the
+    # reference implementation and in the stored test fixtures.
+    # Using `n_constrained_points_to_add` (not `+ 1` and slicing) yields
+    # slightly different spacing and is important for numerical reproducibility.
     grid_points_to_add = jnp.linspace(
         min_wealth_grid, endog_grid[0], n_constrained_points_to_add
     )
