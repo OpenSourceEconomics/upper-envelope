@@ -161,9 +161,9 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
     policy_expected = policy_org[~np.isnan(policy_org)]
     value_expected = value_org[~np.isnan(value_org)]
 
-    assert np.all(np.in1d(endog_grid_expected, endog_grid_refined))
-    assert np.all(np.in1d(policy_expected, policy_refined))
-    assert np.all(np.in1d(value_expected, value_refined))
+    assert np.all(np.isin(endog_grid_expected, endog_grid_refined))
+    assert np.all(np.isin(policy_expected, policy_refined))
+    assert np.all(np.isin(value_expected, value_refined))
 
 
 @pytest.mark.parametrize("period", [2, 4, 10, 9, 18])
