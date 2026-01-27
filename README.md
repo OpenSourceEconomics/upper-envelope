@@ -1,9 +1,9 @@
-# Upper-envelope package
+# Upper Envelope Package
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-[![PyPI version](https://badge.fury.io/py/upper-envelopes.svg)](https://badge.fury.io/py/upper-envelopes)
-[![Downloads](https://pepy.tech/badge/upper-envelopes)](https://pepy.tech/project/upper-envelopes)
+[![PyPI version](https://badge.fury.io/py/upper-envelope.svg)](https://badge.fury.io/py/upper-envelope)
+[![Downloads](https://pepy.tech/badge/upper-envelope)](https://pepy.tech/project/upper-envelope)
 
 [![Continuous Integration Workflow](https://github.com/OpenSourceEconomics/upper-envelope/actions/workflows/main.yml/badge.svg)](https://github.com/OpenSourceEconomics/upper-envelope/actions/workflows/main.yml)
 [![Codecov](https://codecov.io/gh/OpenSourceEconomics/upper-envelope/branch/main/graph/badge.svg)](https://app.codecov.io/gh/OpenSourceEconomics/upper-envelope)
