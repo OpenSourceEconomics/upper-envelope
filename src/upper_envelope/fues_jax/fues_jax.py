@@ -129,8 +129,8 @@ def fues_jax(
     # This is the condition, which we do not use at the moment.
     # closed_form_cond = min_wealth_grid < endog_grid[0]
     grid_points_to_add = jnp.linspace(
-        min_wealth_grid, endog_grid[0], n_constrained_points_to_add + 1
-    )[:-1]
+        min_wealth_grid, endog_grid[0], n_constrained_points_to_add
+    )
     # Compute closed form values
     values_to_add = vmap(_compute_value, in_axes=(0, None, None, None))(
         grid_points_to_add, value_function, value_function_args, value_function_kwargs
