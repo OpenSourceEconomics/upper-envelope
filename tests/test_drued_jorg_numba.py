@@ -1,6 +1,6 @@
 """Tests for `drued_jorg_numba`.
 
-This test mirrors `tests/test_upper_jor_drued.py` but exercises the numba
+This test mirrors `tests/test_jorg_drued_jax.py` but exercises the numba
 implementation.
 
 We compare against `upenv.fues_jax`, but only on evaluation points that lie on
