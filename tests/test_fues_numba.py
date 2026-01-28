@@ -154,8 +154,6 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
     )
 
     _params, state_choice_vec, exog_savings_grid = setup_model
-    # Disable numba jit
-    os.environ["NUMBA_DISABLE_JIT"] = "1"
 
     endog_grid_refined, value_refined, policy_refined = upenv.fues_numba_unconstrained(
         endog_grid=policy_egm[0],
@@ -178,7 +176,6 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
     assert np.all(np.isin(endog_grid_expected, endog_grid_refined))
     assert np.all(np.isin(policy_expected, policy_refined))
     assert np.all(np.isin(value_expected, value_refined))
-    os.environ.pop("NUMBA_DISABLE_JIT", None)
 
 
 @pytest.mark.parametrize("period", [2, 4, 10, 9, 18])
