@@ -220,21 +220,6 @@ def test_fast_upper_envelope_against_fedor(period, setup_model):
         ),
     )
 
-    endog_grid_fues_np, policy_fues_np, value_fues_np = upenv.fues_numba.py_func(
-        endog_grid=policy_egm[0, 1:],
-        policy=policy_egm[1, 1:],
-        value=value_egm[1, 1:],
-        expected_value_zero_savings=value_egm[1, 0],
-        value_function=value_func_numba,
-        value_function_args=(
-            state_choice_vec["choice"],
-            params["beta"],
-            params["rho"],
-            params["delta"],
-            value_egm[1, 0],
-        ),
-    )
-
     wealth_max_to_test = np.max(endog_grid_fues[~np.isnan(endog_grid_fues)]) + 100
     wealth_grid_to_test = np.linspace(endog_grid_fues[1], wealth_max_to_test, 1000)
 
@@ -251,16 +236,6 @@ def test_fast_upper_envelope_against_fedor(period, setup_model):
         policy_grid=policy_fues,
         value_function_grid=value_fues,
     )
-    policy_interp_np, value_interp_np = (
-        interpolate_single_policy_and_value_on_wealth_grid(
-            wealth_beginning_of_period=wealth_grid_to_test,
-            endog_wealth_grid=endog_grid_fues_np,
-            policy_grid=policy_fues_np,
-            value_function_grid=value_fues_np,
-        )
-    )
 
     aaae(value_interp, value_expec_interp)
     aaae(policy_interp, policy_expec_interp)
-    aaae(value_interp_np, value_expec_interp)
-    aaae(policy_interp_np, policy_expec_interp)

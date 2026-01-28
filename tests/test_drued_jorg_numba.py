@@ -107,22 +107,6 @@ def test_drued_jorg_numba_matches_fues_on_safe_segments(period, setup_model):
         ),
     )
 
-    endog_out_np, policy_out_np, value_out_np = upenv.drued_jorg_numba.py_func(
-        endog_grid=policy_egm[0, 1:],
-        policy=policy_egm[1, 1:],
-        value=value_egm[1, 1:],
-        m_grid=m_grid,
-        expected_value_zero_savings=value_egm[1, 0],
-        value_function=value_func_numba,
-        value_function_args=(
-            state_choice_vec["choice"],
-            params["beta"],
-            params["rho"],
-            params["delta"],
-            value_egm[1, 0],
-        ),
-    )
-
     endog_out = np.asarray(endog_out)
     value_out = np.asarray(value_out)
 
@@ -138,5 +122,4 @@ def test_drued_jorg_numba_matches_fues_on_safe_segments(period, setup_model):
     # Now the refs live on the same m_grid as outputs. But we cannot compare entries of m_grid which are
     # affected by interpolation
     assert_allclose(value_out[1:][good], v_ref_interp[good], rtol=1e-7, atol=1e-7)
-    assert_allclose(value_out_np[1:][good], v_ref_interp[good], rtol=1e-7, atol=1e-7)
-    assert_allclose(policy_out_np[1:][good], c_ref_interp[good], rtol=1e-7, atol=1e-7)
+    assert_allclose(policy_out[1:][good], c_ref_interp[good], rtol=1e-7, atol=1e-7)
