@@ -160,6 +160,13 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
         value=value_egm[1],
         policy=policy_egm[1],
     )
+    endog_grid_refined_np, value_refined_np, policy_refined_np = (
+        upenv.fues_numba_unconstrained.py_func(
+            endog_grid=policy_egm[0],
+            value=value_egm[1],
+            policy=policy_egm[1],
+        )
+    )
 
     endog_grid_org, policy_org, value_org = fast_upper_envelope_wrapper_org(
         endog_grid=policy_egm[0],
@@ -177,6 +184,9 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
     assert np.all(np.isin(endog_grid_expected, endog_grid_refined))
     assert np.all(np.isin(policy_expected, policy_refined))
     assert np.all(np.isin(value_expected, value_refined))
+    np.all(np.isin(endog_grid_expected, endog_grid_refined_np))
+    np.all(np.isin(policy_expected, policy_refined_np))
+    np.all(np.isin(value_expected, value_refined_np))
 
 
 @pytest.mark.parametrize("period", [2, 4, 10, 9, 18])
