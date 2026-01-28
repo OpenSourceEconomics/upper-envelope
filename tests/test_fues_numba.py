@@ -1,5 +1,7 @@
 """Test the numba implementation of the fast upper envelope scan."""
 
+import os
+from itertools import product
 from pathlib import Path
 
 import numpy as np
@@ -177,8 +179,16 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
     assert np.all(np.isin(value_expected, value_refined))
 
 
-@pytest.mark.parametrize("period", [2, 4, 10, 9, 18])
-def test_fast_upper_envelope_against_fedor(period, setup_model):
+@pytest.mark.parametrize(
+    "period, numba_enable", product([2, 4, 10, 9, 18], [True, False])
+)
+def test_fast_upper_envelope_against_fedor(period, numba_enable, setup_model):
+    # Turn on/off numba JIT compilation as requested
+    if numba_enable:
+        os.environ["NUMBA_DISABLE_JIT"] = "0"
+    else:
+        os.environ["NUMBA_DISABLE_JIT"] = "1"
+
     value_egm = np.genfromtxt(
         TEST_RESOURCES_DIR / f"upper_envelope_period_tests/val{period}.csv",
         delimiter=",",

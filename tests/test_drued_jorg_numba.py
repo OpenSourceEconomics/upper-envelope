@@ -8,6 +8,8 @@ reference line segments that are not affected by explicit intersection handling.
 
 """
 
+import os
+from itertools import product
 from pathlib import Path
 from typing import Dict
 
@@ -68,8 +70,19 @@ def setup_model():
     return params, state_choice_vec
 
 
-@pytest.mark.parametrize("period", [2, 4, 9, 10, 18])
-def test_drued_jorg_numba_matches_fues_on_safe_segments(period, setup_model):
+@pytest.mark.parametrize(
+    "period, numba_enable", product([2, 4, 9, 10, 18], [True, False])
+)
+def test_drued_jorg_numba_matches_fues_on_safe_segments(
+    period, numba_enable, setup_model
+):
+
+    # Turn on/off numba JIT compilation as requested
+    if numba_enable:
+        os.environ["NUMBA_DISABLE_JIT"] = "0"
+    else:
+        os.environ["NUMBA_DISABLE_JIT"] = "1"
+
     value_egm = np.genfromtxt(
         TEST_RESOURCES_DIR / f"upper_envelope_period_tests/val{period}.csv",
         delimiter=",",

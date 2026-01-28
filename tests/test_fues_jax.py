@@ -1,5 +1,6 @@
 """Test the JAX implementation of the fast upper envelope scan."""
 
+import os
 from pathlib import Path
 from typing import Dict
 
@@ -88,6 +89,8 @@ def setup_model():
 
 @pytest.mark.parametrize("period", [2, 4, 9, 10, 18])
 def test_fast_upper_envelope_wrapper(period, setup_model):
+
+    os.environ["NUMBA_DISABLE_JIT"] = "1"
     value_egm = np.genfromtxt(
         TEST_RESOURCES_DIR / f"upper_envelope_period_tests/val{period}.csv",
         delimiter=",",
@@ -169,6 +172,7 @@ def test_fast_upper_envelope_wrapper(period, setup_model):
 
 
 def test_fast_upper_envelope_against_numba(setup_model):
+    os.environ["NUMBA_DISABLE_JIT"] = "0"
     policy_egm = np.genfromtxt(
         TEST_RESOURCES_DIR / "upper_envelope_period_tests/pol10.csv", delimiter=","
     )
