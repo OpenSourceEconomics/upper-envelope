@@ -120,3 +120,4 @@ def test_upper_jorg_drued_matches_fues_on_safe_segments(period, setup_model):
 
     # Compare on the common grid portion (skip index 0 which is a convention).
     assert_allclose(value_out[1:][good], v_ref[good], rtol=1e-7, atol=1e-7)
+    assert_allclose(policy_out[1:][good], c_ref[good], rtol=1e-7, atol=1e-7)
