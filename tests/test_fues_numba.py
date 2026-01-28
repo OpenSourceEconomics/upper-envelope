@@ -179,15 +179,8 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
     assert np.all(np.isin(value_expected, value_refined))
 
 
-@pytest.mark.parametrize(
-    "period, numba_enable", product([2, 4, 10, 9, 18], [True, False])
-)
-def test_fast_upper_envelope_against_fedor(period, numba_enable, setup_model):
-    # Turn on/off numba JIT compilation as requested
-    if numba_enable:
-        os.environ["NUMBA_DISABLE_JIT"] = "0"
-    else:
-        os.environ["NUMBA_DISABLE_JIT"] = "1"
+@pytest.mark.parametrize("period", [2, 4, 10, 9, 18])
+def test_fast_upper_envelope_against_fedor(period, setup_model):
 
     value_egm = np.genfromtxt(
         TEST_RESOURCES_DIR / f"upper_envelope_period_tests/val{period}.csv",
@@ -229,6 +222,21 @@ def test_fast_upper_envelope_against_fedor(period, numba_enable, setup_model):
         ),
     )
 
+    endog_grid_fues_np, policy_fues_np, value_fues_np = upenv.fues_numba.py_func(
+        endog_grid=policy_egm[0, 1:],
+        policy=policy_egm[1, 1:],
+        value=value_egm[1, 1:],
+        expected_value_zero_savings=value_egm[1, 0],
+        value_function=value_func_numba,
+        value_function_args=(
+            state_choice_vec["choice"],
+            params["beta"],
+            params["rho"],
+            params["delta"],
+            value_egm[1, 0],
+        ),
+    )
+
     wealth_max_to_test = np.max(endog_grid_fues[~np.isnan(endog_grid_fues)]) + 100
     wealth_grid_to_test = np.linspace(endog_grid_fues[1], wealth_max_to_test, 1000)
 
@@ -245,5 +253,16 @@ def test_fast_upper_envelope_against_fedor(period, numba_enable, setup_model):
         policy_grid=policy_fues,
         value_function_grid=value_fues,
     )
+    policy_interp_np, value_interp_np = (
+        interpolate_single_policy_and_value_on_wealth_grid(
+            wealth_beginning_of_period=wealth_grid_to_test,
+            endog_wealth_grid=endog_grid_fues_np,
+            policy_grid=policy_fues_np,
+            value_function_grid=value_fues_np,
+        )
+    )
+
     aaae(value_interp, value_expec_interp)
     aaae(policy_interp, policy_expec_interp)
+    aaae(value_interp_np, value_expec_interp)
+    aaae(policy_interp_np, policy_expec_interp)

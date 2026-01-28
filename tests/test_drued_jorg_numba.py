@@ -8,12 +8,9 @@ reference line segments that are not affected by explicit intersection handling.
 
 """
 
-import os
-from itertools import product
 from pathlib import Path
 from typing import Dict
 
-import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
@@ -21,6 +18,7 @@ from numba import njit
 from numpy.testing import assert_allclose
 
 import upper_envelope as upenv
+from tests.utils.comparison_interp import interpolate_on_safe_reference_segments
 
 TEST_DIR = Path(__file__).parent
 TEST_RESOURCES_DIR = TEST_DIR / "resources"
@@ -43,26 +41,6 @@ def value_func_numba(
     return utility + beta * continuation_at_zero_savings
 
 
-def interpolate_on_safe_reference_segments(
-    ref_m: np.ndarray, ref_y: np.ndarray, m_grid: np.ndarray
-):
-    dm = ref_m[1:] - ref_m[:-1]
-    safe = dm > 0
-
-    weight = (m_grid[None, :] - ref_m[:-1, None]) / (dm[:, None] + 1e-16)
-    y_interp = ref_y[:-1, None] + weight * (ref_y[1:] - ref_y[:-1])[:, None]
-
-    outside = (weight < 0.0) | (weight > 1.0)
-    y_interp[outside | (~safe[:, None])] = -np.inf
-
-    return np.max(y_interp, axis=0)
-
-
-@pytest.fixture(autouse=True)
-def _jax_x64():
-    jax.config.update("jax_enable_x64", True)
-
-
 @pytest.fixture()
 def setup_model():
     params = {"beta": 0.95, "rho": 1.95, "delta": 0.35}
@@ -70,18 +48,8 @@ def setup_model():
     return params, state_choice_vec
 
 
-@pytest.mark.parametrize(
-    "period, numba_enable", product([2, 4, 9, 10, 18], [True, False])
-)
-def test_drued_jorg_numba_matches_fues_on_safe_segments(
-    period, numba_enable, setup_model
-):
-
-    # Turn on/off numba JIT compilation as requested
-    if numba_enable:
-        os.environ["NUMBA_DISABLE_JIT"] = "0"
-    else:
-        os.environ["NUMBA_DISABLE_JIT"] = "1"
+@pytest.mark.parametrize("period", [2, 4, 9, 10, 18])
+def test_drued_jorg_numba_matches_fues_on_safe_segments(period, setup_model):
 
     value_egm = np.genfromtxt(
         TEST_RESOURCES_DIR / f"upper_envelope_period_tests/val{period}.csv",
@@ -113,9 +81,11 @@ def test_drued_jorg_numba_matches_fues_on_safe_segments(
 
     ref_m = np.asarray(ref_m)
     ref_v = np.asarray(ref_v)
+    ref_c = np.asarray(ref_c)
     valid = ~np.isnan(ref_m)
     ref_m = ref_m[valid]
     ref_v = ref_v[valid]
+    ref_c = ref_c[valid]
 
     m_min = float(np.min(policy_egm[0, 1:]))
     m_max = float(np.max(policy_egm[0, 1:]))
@@ -137,17 +107,36 @@ def test_drued_jorg_numba_matches_fues_on_safe_segments(
         ),
     )
 
+    endog_out_np, policy_out_np, value_out_np = upenv.drued_jorg_numba.py_func(
+        endog_grid=policy_egm[0, 1:],
+        policy=policy_egm[1, 1:],
+        value=value_egm[1, 1:],
+        m_grid=m_grid,
+        expected_value_zero_savings=value_egm[1, 0],
+        value_function=value_func_numba,
+        value_function_args=(
+            state_choice_vec["choice"],
+            params["beta"],
+            params["rho"],
+            params["delta"],
+            value_egm[1, 0],
+        ),
+    )
+
     endog_out = np.asarray(endog_out)
     value_out = np.asarray(value_out)
 
     assert endog_out[0] == 0.0
     assert value_out[0] == value_egm[1, 0]
 
-    v_ref = interpolate_on_safe_reference_segments(ref_m, ref_v, m_grid)
+    v_ref_interp, c_ref_interp = interpolate_on_safe_reference_segments(
+        ref_m, ref_v, ref_c, m_grid
+    )
 
-    good = np.isfinite(v_ref)
-    assert good.any(), "No safe reference points found; test setup issue."
+    good = ~np.isnan(v_ref_interp)
 
-    good &= np.isfinite(value_out[1:])
-
-    assert_allclose(value_out[1:][good], v_ref[good], rtol=1e-7, atol=1e-7)
+    # Now the refs live on the same m_grid as outputs. But we cannot compare entries of m_grid which are
+    # affected by interpolation
+    assert_allclose(value_out[1:][good], v_ref_interp[good], rtol=1e-7, atol=1e-7)
+    assert_allclose(value_out_np[1:][good], v_ref_interp[good], rtol=1e-7, atol=1e-7)
+    assert_allclose(policy_out_np[1:][good], c_ref_interp[good], rtol=1e-7, atol=1e-7)

@@ -20,10 +20,10 @@ We therefore:
 from pathlib import Path
 from typing import Dict
 
-import jax
 import jax.numpy as jnp
 import numpy as np
 import pytest
+from comparison_interp import interpolate_on_safe_reference_segments
 from numpy.testing import assert_allclose
 
 import upper_envelope as upenv
@@ -38,37 +38,6 @@ def utility_crra(
     utility_consumption = (consumption ** (1 - params["rho"]) - 1) / (1 - params["rho"])
     utility = utility_consumption - (1 - choice) * params["delta"]
     return utility
-
-
-def interpolate_on_safe_reference_segments(
-    ref_m: np.ndarray,
-    ref_y: np.ndarray,
-    m_grid: np.ndarray,
-):
-    """Interpolate reference (ref_m, ref_y) onto m_grid, ignoring unsafe segments.
-
-    A "safe" segment is any adjacent pair (ref_m[i], ref_m[i+1]) with ref_m[i+1] >
-    ref_m[i]. For each x in m_grid, we take the maximum interpolated value over all safe
-    segments covering x. This avoids ambiguity around duplicated ref_m values.
-
-    """
-
-    dm = ref_m[1:] - ref_m[:-1]
-    safe = dm > 0
-
-    weight = (m_grid[None, :] - ref_m[:-1, None]) / (dm[:, None] + 1e-16)
-    y_interp = ref_y[:-1, None] + weight * (ref_y[1:] - ref_y[:-1])[:, None]
-
-    outside = (weight < 0.0) | (weight > 1.0)
-    y_interp[outside | (~safe[:, None])] = -np.inf
-
-    y_best = np.max(y_interp, axis=0)
-    return y_best
-
-
-@pytest.fixture(autouse=True)
-def _jax_x64():
-    jax.config.update("jax_enable_x64", True)
 
 
 @pytest.fixture()
@@ -145,38 +114,9 @@ def test_upper_jorg_drued_matches_fues_on_safe_segments(period, setup_model):
 
     # Build reference interpolants on safe segments only.
     # Use value to select the best reference segment; then take policy from that segment.
-    v_ref = interpolate_on_safe_reference_segments(ref_m, ref_v, m_grid)
+    v_ref, c_ref = interpolate_on_safe_reference_segments(ref_m, ref_v, ref_c, m_grid)
 
-    # Recompute the segment-wise interpolation for policy using the same winner segments
-    # implied by the value envelope.
-    dm = ref_m[1:] - ref_m[:-1]
-    safe = dm > 0
-    weight = (m_grid[None, :] - ref_m[:-1, None]) / (dm[:, None] + 1e-16)
-    c_interp = ref_c[:-1, None] + weight * (ref_c[1:] - ref_c[:-1])[:, None]
-
-    outside = (weight < 0.0) | (weight > 1.0)
-    c_interp[outside | (~safe[:, None])] = np.nan
-
-    # Determine which segment delivers v_ref at each grid point.
-    v_interp = ref_v[:-1, None] + weight * (ref_v[1:] - ref_v[:-1])[:, None]
-    v_interp[outside | (~safe[:, None])] = -np.inf
-    best_seg = np.argmax(v_interp, axis=0)
-    c_ref = c_interp[best_seg, np.arange(m_grid.size)]
-
-    # Mask points where reference is defined.
-    good = np.isfinite(v_ref) & np.isfinite(c_ref)
-    assert good.any(), "No safe reference points found; test setup issue."
-
-    # Our implementation only interpolates adjacent input pairs. The input ordering can
-    # leave gaps where no segment covers m_grid; those points will be -inf and are not
-    # comparable to the reference.
-    good &= np.isfinite(value_out[1:]) & np.isfinite(policy_out[1:])
+    good = ~np.isnan(v_ref)
 
     # Compare on the common grid portion (skip index 0 which is a convention).
     assert_allclose(value_out[1:][good], v_ref[good], rtol=1e-7, atol=1e-7)
-
-    # Policy can differ even when value matches because:
-    # - `upper_jorg_drued` includes a consume-all candidate with policy == m_grid
-    # - `fues_jax` does not explicitly expose that candidate as a segment
-    # - near kinks, the value envelope can have multiple near-ties with different policies
-    # We therefore only assert value agreement here.
