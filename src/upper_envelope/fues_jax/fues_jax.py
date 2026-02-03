@@ -11,7 +11,6 @@ from typing import Callable, Dict, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
-import numpy as np
 from jax import vmap
 
 from upper_envelope.fues_jax.check_and_scan_funcs import (
@@ -37,7 +36,7 @@ def fues_jax(
     expected_value_zero_savings: jnp.ndarray | float,
     value_function: Callable,
     value_function_args: Optional[Tuple] = (),
-    value_function_kwargs: Optional[Dict] = {},
+    value_function_kwargs: Optional[Dict] = None,
     n_constrained_points_to_add=None,
     n_final_wealth_grid=None,
     jump_thresh=2,
@@ -99,6 +98,9 @@ def fues_jax(
             containing refined value function.
 
     """
+    if value_function_kwargs is None:
+        value_function_kwargs = {}
+
     # Set default of n_constrained_points_to_add to 10% of the grid size
     n_constrained_points_to_add = (
         endog_grid.shape[0] // 10
@@ -124,14 +126,18 @@ def fues_jax(
 
     # Because of jax, we always need to perform the same set of computations. Hence,
     # if there is no wealth grid point below the first, we just add nans thereafter.
-    min_id = np.argmin(endog_grid)
+    min_id = jnp.argmin(endog_grid)
     min_wealth_grid = endog_grid[min_id]
 
     # This is the condition, which we do not use at the moment.
     # closed_form_cond = min_wealth_grid < endog_grid[0]
+    # NOTE: We intentionally mirror NumPy's `linspace` behavior used in the
+    # reference implementation and in the stored test fixtures.
+    # Using `n_constrained_points_to_add` (not `+ 1` and slicing) yields
+    # slightly different spacing and is important for numerical reproducibility.
     grid_points_to_add = jnp.linspace(
-        min_wealth_grid, endog_grid[0], n_constrained_points_to_add + 1
-    )[:-1]
+        min_wealth_grid, endog_grid[0], n_constrained_points_to_add
+    )
     # Compute closed form values
     values_to_add = vmap(_compute_value, in_axes=(0, None, None, None))(
         grid_points_to_add, value_function, value_function_args, value_function_kwargs
@@ -828,6 +834,7 @@ def select_and_calculate_intersection(
 def _compute_value(
     consumption, value_function, value_function_args, value_function_kwargs
 ):
+    """Helper to compute value given consumption and value function."""
     value = value_function(
         consumption,
         *value_function_args,

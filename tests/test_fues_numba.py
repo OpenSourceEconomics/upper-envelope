@@ -1,9 +1,12 @@
 """Test the numba implementation of the fast upper envelope scan."""
 
+import os
+from itertools import product
 from pathlib import Path
 
 import numpy as np
 import pytest
+from numba import njit
 from numpy.testing import assert_array_almost_equal as aaae
 
 import upper_envelope as upenv
@@ -45,6 +48,15 @@ def utility_crra(consumption: np.array, choice: int, params: dict) -> np.array:
     utility = utility_consumption - (1 - choice) * params["delta"]
 
     return utility
+
+
+@njit
+def value_func_numba(
+    consumption, choice, beta, rho, delta, continuation_at_zero_savings
+):
+    utility_consumption = (consumption ** (1 - rho) - 1) / (1 - rho)
+    utility = utility_consumption - (1 - choice) * delta
+    return utility + beta * continuation_at_zero_savings
 
 
 @pytest.fixture
@@ -91,18 +103,19 @@ def test_fast_upper_envelope_wrapper(period, setup_model):
 
     params, state_choice_vec, _exog_savings_grid = setup_model
 
-    def value_func(consumption, choice, params):
-        return (
-            utility_crra(consumption, choice, params) + params["beta"] * value_egm[1, 0]
-        )
-
     endog_grid_refined, policy_refined, value_refined = upenv.fues_numba(
         endog_grid=policy_egm[0, 1:],
         policy=policy_egm[1, 1:],
         value=value_egm[1, 1:],
         expected_value_zero_savings=value_egm[1, 0],
-        value_function=value_func,
-        value_function_args=(state_choice_vec["choice"], params),
+        value_function=value_func_numba,
+        value_function_args=(
+            state_choice_vec["choice"],
+            params["beta"],
+            params["rho"],
+            params["delta"],
+            value_egm[1, 0],
+        ),
     )
 
     wealth_max_to_test = np.max(endog_grid_refined[~np.isnan(endog_grid_refined)]) + 100
@@ -147,7 +160,6 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
         value=value_egm[1],
         policy=policy_egm[1],
     )
-
     endog_grid_org, policy_org, value_org = fast_upper_envelope_wrapper_org(
         endog_grid=policy_egm[0],
         policy=policy_egm[1],
@@ -161,9 +173,9 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
     policy_expected = policy_org[~np.isnan(policy_org)]
     value_expected = value_org[~np.isnan(value_org)]
 
-    assert np.all(np.in1d(endog_grid_expected, endog_grid_refined))
-    assert np.all(np.in1d(policy_expected, policy_refined))
-    assert np.all(np.in1d(value_expected, value_refined))
+    assert np.all(np.isin(endog_grid_expected, endog_grid_refined))
+    assert np.all(np.isin(policy_expected, policy_refined))
+    assert np.all(np.isin(value_expected, value_refined))
 
 
 @pytest.mark.parametrize("period", [2, 4, 10, 9, 18])
@@ -193,18 +205,19 @@ def test_fast_upper_envelope_against_fedor(period, setup_model):
         ~np.isnan(_value_fedor).any(axis=0),
     ]
 
-    def value_func(consumption, choice, params):
-        return (
-            utility_crra(consumption, choice, params) + params["beta"] * value_egm[1, 0]
-        )
-
     endog_grid_fues, policy_fues, value_fues = upenv.fues_numba(
         endog_grid=policy_egm[0, 1:],
         policy=policy_egm[1, 1:],
         value=value_egm[1, 1:],
         expected_value_zero_savings=value_egm[1, 0],
-        value_function=value_func,
-        value_function_args=(state_choice_vec["choice"], params),
+        value_function=value_func_numba,
+        value_function_args=(
+            state_choice_vec["choice"],
+            params["beta"],
+            params["rho"],
+            params["delta"],
+            value_egm[1, 0],
+        ),
     )
 
     wealth_max_to_test = np.max(endog_grid_fues[~np.isnan(endog_grid_fues)]) + 100
@@ -223,5 +236,6 @@ def test_fast_upper_envelope_against_fedor(period, setup_model):
         policy_grid=policy_fues,
         value_function_grid=value_fues,
     )
+
     aaae(value_interp, value_expec_interp)
     aaae(policy_interp, policy_expec_interp)

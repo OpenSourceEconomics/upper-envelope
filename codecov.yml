@@ -19,3 +19,4 @@ ignore:
   - tests/*
   - tests/**/*
   - .tox/**/*
+  - docs/
