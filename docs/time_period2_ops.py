@@ -8,7 +8,8 @@ import jax.numpy as jnp
 import numpy as np
 from numba import njit
 
-import upper_envelope as upenv
+import upper_envelope.jax as ue_jax
+import upper_envelope.numba as ue_numba
 
 jax.config.update("jax_enable_x64", True)
 
@@ -60,7 +61,7 @@ def value_func_jax(consumption, choice, params):
 
 
 def fues_jax_partial(endog, pol, val, exp_val_zero):
-    return upenv.fues_jax(
+    return ue_jax.fues_jax(
         endog_grid=jnp.asarray(endog),
         policy=jnp.asarray(pol),
         value=jnp.asarray(val),
@@ -103,7 +104,7 @@ print(f"JAX FUES average time over {n_runs} runs: {tot_time / n_runs:.6f} second
 
 
 def drued_jorg_jax_partial(endog, pol, val, m_grid, exp_val_zero):
-    return upenv.drued_jorg_jax(
+    return ue_jax.drued_jorg_jax(
         endog_grid=endog,
         policy=pol,
         value=val,
@@ -168,7 +169,7 @@ numba_args = (
 # Numba FUES
 start = time.time()
 jax.block_until_ready(
-    upenv.fues_numba(
+    ue_numba.fues_numba(
         endog_grid=policy_egm[0, 1:],
         policy=policy_egm[1, 1:],
         value=value_egm[1, 1:],
@@ -184,7 +185,7 @@ tot_time = 0.0
 for _ in range(n_runs):
     start = time.time()
     jax.block_until_ready(
-        upenv.fues_numba(
+        ue_numba.fues_numba(
             endog_grid=policy_egm[0, 1:],
             policy=policy_egm[1, 1:],
             value=value_egm[1, 1:],
@@ -201,7 +202,7 @@ print(f"Numba FUES average time over {n_runs} runs: {tot_time / n_runs:.6f} seco
 # Numba DRUED-JORG
 start = time.time()
 jax.block_until_ready(
-    upenv.drued_jorg_numba(
+    ue_numba.drued_jorg_numba(
         endog_grid=policy_egm[0, 1:],
         policy=policy_egm[1, 1:],
         value=value_egm[1, 1:],
@@ -218,7 +219,7 @@ tot_time = 0.0
 for _ in range(n_runs):
     start = time.time()
     jax.block_until_ready(
-        upenv.drued_jorg_numba(
+        ue_numba.drued_jorg_numba(
             endog_grid=policy_egm[0, 1:],
             policy=policy_egm[1, 1:],
             value=value_egm[1, 1:],

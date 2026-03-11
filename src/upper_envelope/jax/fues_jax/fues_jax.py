@@ -13,7 +13,7 @@ import jax
 import jax.numpy as jnp
 from jax import vmap
 
-from upper_envelope.fues_jax.check_and_scan_funcs import (
+from upper_envelope.jax.fues_jax.check_and_scan_funcs import (
     determine_cases_and_conduct_necessary_scans,
 )
 from upper_envelope.math_funcs import calc_intersection_and_extrapolate_policy

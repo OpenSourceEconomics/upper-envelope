@@ -2,15 +2,12 @@
 # Project metadata
 # ======================================================================================
 [project]
-name               = "upper_envelope"
-description        = "Upper envelope scan for dynamic discrete-continuous life cycle models."
-version         = "0.1.3"
-requires-python    = ">=3.10"
+name = "upper_envelope"
+description = "Upper envelope scan for dynamic discrete-continuous life cycle models."
+dynamic = ["version"]
+requires-python = ">=3.10"
 dependencies       = [
     "numpy",
-    "pandas",
-    "scipy",
-    "jax"
 ]
 keywords = [
     "Dynamic programming",
@@ -32,7 +29,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 authors            = [
-  { name="Max Blesch", email="maximilian.blesch@hu-berlin.de" },
+  { name="Max Blesch", email="maxblesch@gmail.com" },
   { name="Sebastian Gsell", email="gsell.sebastian@gmail.com" },
 ]
 maintainers = [
@@ -55,7 +52,7 @@ Github = "https://github.com/OpensourceEconomics/upper-envelope"
 # ======================================================================================
 
 [build-system]
-requires = ["hatchling", "hatch_vcs"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.hooks.vcs]
