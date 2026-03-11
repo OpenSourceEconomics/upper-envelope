@@ -12,13 +12,14 @@ from numpy.testing import assert_array_almost_equal as aaae
 
 import upper_envelope.jax as upenv_jax
 import upper_envelope.numba as upenv_numba
-
 from tests.utils.interpolation import (
     interpolate_policy_and_value_on_wealth_grid,
     linear_interpolation_with_extrapolation,
 )
 from tests.utils.upper_envelope_fedor import upper_envelope
-from upper_envelope.jax.fues_jax.check_and_scan_funcs import back_and_forward_scan_wrapper
+from upper_envelope.jax.fues_jax.check_and_scan_funcs import (
+    back_and_forward_scan_wrapper,
+)
 
 jax.config.update("jax_enable_x64", True)
 

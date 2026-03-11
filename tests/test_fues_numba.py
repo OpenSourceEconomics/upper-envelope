@@ -156,10 +156,12 @@ def test_fast_upper_envelope_against_org_fues(setup_model):
 
     _params, state_choice_vec, exog_savings_grid = setup_model
 
-    endog_grid_refined, value_refined, policy_refined = upenv_numba.fues_numba_unconstrained(
-        endog_grid=policy_egm[0],
-        value=value_egm[1],
-        policy=policy_egm[1],
+    endog_grid_refined, value_refined, policy_refined = (
+        upenv_numba.fues_numba_unconstrained(
+            endog_grid=policy_egm[0],
+            value=value_egm[1],
+            policy=policy_egm[1],
+        )
     )
     endog_grid_org, policy_org, value_org = fast_upper_envelope_wrapper_org(
         endog_grid=policy_egm[0],
