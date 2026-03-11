@@ -10,13 +10,15 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal as aaae
 
-import upper_envelope as upenv
+import upper_envelope.jax as upenv_jax
+import upper_envelope.numba as upenv_numba
+
 from tests.utils.interpolation import (
     interpolate_policy_and_value_on_wealth_grid,
     linear_interpolation_with_extrapolation,
 )
 from tests.utils.upper_envelope_fedor import upper_envelope
-from upper_envelope.fues_jax.check_and_scan_funcs import back_and_forward_scan_wrapper
+from upper_envelope.jax.fues_jax.check_and_scan_funcs import back_and_forward_scan_wrapper
 
 jax.config.update("jax_enable_x64", True)
 
@@ -134,7 +136,7 @@ def test_fast_upper_envelope_wrapper(period, setup_model):
         endog_grid_refined,
         policy_refined,
         value_refined,
-    ) = upenv.fues_jax(
+    ) = upenv_jax.fues_jax(
         endog_grid=jnp.asarray(policy_egm[0, 1:]),
         policy=jnp.asarray(policy_egm[1, 1:]),
         value=jnp.asarray(value_egm[1, 1:]),
@@ -180,7 +182,7 @@ def test_fast_upper_envelope_against_numba(setup_model):
     )
     _params, exog_savings_grid, state_choice_vars = setup_model
 
-    endog_grid_org, value_org, policy_org = upenv.fues_numba_unconstrained(
+    endog_grid_org, value_org, policy_org = upenv_numba.fues_numba_unconstrained(
         endog_grid=policy_egm[0],
         value=value_egm[1],
         policy=policy_egm[1],
@@ -190,7 +192,7 @@ def test_fast_upper_envelope_against_numba(setup_model):
         endog_grid_refined,
         value_refined,
         policy_refined,
-    ) = jax.jit(upenv.fues_jax_unconstrained)(
+    ) = jax.jit(upenv_jax.fues_jax_unconstrained)(
         endog_grid=policy_egm[0, 1:],
         value=value_egm[1, 1:],
         policy=policy_egm[1, 1:],
@@ -262,7 +264,7 @@ def test_fast_upper_envelope_against_fedor(period, setup_model):
         endog_grid_fues,
         policy_fues,
         value_fues,
-    ) = upenv.fues_jax(
+    ) = upenv_jax.fues_jax(
         endog_grid=jnp.asarray(policy_egm[0, 1:]),
         policy=jnp.asarray(policy_egm[1, 1:]),
         value=jnp.asarray(value_egm[1, 1:]),

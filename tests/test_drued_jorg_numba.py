@@ -17,7 +17,8 @@ import pytest
 from numba import njit
 from numpy.testing import assert_allclose
 
-import upper_envelope as upenv
+import upper_envelope.jax as upenv_jax
+import upper_envelope.numba as upenv_numba
 from tests.utils.comparison_interp import interpolate_on_safe_reference_segments
 
 TEST_DIR = Path(__file__).parent
@@ -69,7 +70,7 @@ def test_drued_jorg_numba_matches_fues_on_safe_segments(period, setup_model):
             utility_crra(consumption, choice, params) + params["beta"] * value_egm[1, 0]
         )
 
-    ref_m, ref_c, ref_v = upenv.fues_jax(
+    ref_m, ref_c, ref_v = upenv_jax.fues_jax(
         endog_grid=jnp.asarray(policy_egm[0, 1:]),
         policy=jnp.asarray(policy_egm[1, 1:]),
         value=jnp.asarray(value_egm[1, 1:]),
@@ -91,7 +92,7 @@ def test_drued_jorg_numba_matches_fues_on_safe_segments(period, setup_model):
     m_max = float(np.max(policy_egm[0, 1:]))
     m_grid = np.linspace(m_min, m_max, 500)
 
-    endog_out, policy_out, value_out = upenv.drued_jorg_numba(
+    endog_out, policy_out, value_out = upenv_numba.drued_jorg_numba(
         endog_grid=policy_egm[0, 1:],
         policy=policy_egm[1, 1:],
         value=value_egm[1, 1:],

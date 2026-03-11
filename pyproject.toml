@@ -32,7 +32,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 authors            = [
-  { name="Max Blesch", email="maximilian.blesch@hu-berlin.de" },
+  { name="Max Blesch", email="maxblesch@gmail.com" },
   { name="Sebastian Gsell", email="gsell.sebastian@gmail.com" },
 ]
 maintainers = [

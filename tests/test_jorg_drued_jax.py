@@ -26,7 +26,7 @@ import pytest
 from comparison_interp import interpolate_on_safe_reference_segments
 from numpy.testing import assert_allclose
 
-import upper_envelope as upenv
+import upper_envelope.jax as upenv_jax
 
 TEST_DIR = Path(__file__).parent
 TEST_RESOURCES_DIR = TEST_DIR / "resources"
@@ -68,7 +68,7 @@ def test_upper_jorg_drued_matches_fues_on_safe_segments(period, setup_model):
             utility_crra(consumption, choice, params) + params["beta"] * value_egm[1, 0]
         )
 
-    ref_m, ref_c, ref_v = upenv.fues_jax(
+    ref_m, ref_c, ref_v = upenv_jax.fues_jax(
         endog_grid=jnp.asarray(policy_egm[0, 1:]),
         policy=jnp.asarray(policy_egm[1, 1:]),
         value=jnp.asarray(value_egm[1, 1:]),
@@ -93,7 +93,7 @@ def test_upper_jorg_drued_matches_fues_on_safe_segments(period, setup_model):
     m_max = float(np.max(policy_egm[0, 1:]))
     m_grid = np.linspace(m_min, m_max, 500)
 
-    endog_out, policy_out, value_out = upenv.drued_jorg_jax(
+    endog_out, policy_out, value_out = upenv_jax.drued_jorg_jax(
         endog_grid=jnp.asarray(policy_egm[0, 1:]),
         policy=jnp.asarray(policy_egm[1, 1:]),
         value=jnp.asarray(value_egm[1, 1:]),
