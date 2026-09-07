@@ -33,7 +33,7 @@ TEST_RESOURCES_DIR = TEST_DIR / "resources"
 def utility_crra(
     consumption: jnp.array,
     choice: int,
-    params: Dict[str, float],
+    params: dict[str, float],
 ) -> jnp.array:
     """Computes the agent's current utility based on a CRRA utility function.
 

@@ -1,10 +1,9 @@
 """Tests for `drued_jorg_numba`.
 
-This test mirrors `tests/test_jorg_drued_jax.py` but exercises the numba
-implementation.
+This test mirrors `tests/test_jorg_drued_jax.py` but exercises the numba implementation.
 
-We compare against `upenv.fues_jax`, but only on evaluation points that lie on
-reference line segments that are not affected by explicit intersection handling.
+We compare against `upenv.fues_jax`, but only on evaluation points that lie on reference
+line segments that are not affected by explicit intersection handling.
 
 """
 
@@ -26,7 +25,7 @@ TEST_RESOURCES_DIR = TEST_DIR / "resources"
 
 
 def utility_crra(
-    consumption: jnp.ndarray, choice: int, params: Dict[str, float]
+    consumption: jnp.ndarray, choice: int, params: dict[str, float]
 ) -> jnp.ndarray:
     utility_consumption = (consumption ** (1 - params["rho"]) - 1) / (1 - params["rho"])
     utility = utility_consumption - (1 - choice) * params["delta"]

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import partial
-from typing import Callable, Dict, Optional
+from typing import Dict, Optional
 
 import jax
 import jax.numpy as jnp
@@ -16,7 +17,7 @@ def drued_jorg_jax(
     expected_value_zero_savings: jnp.ndarray | float,
     value_function: Callable,
     value_function_args=(),
-    value_function_kwargs: Optional[Dict] = None,
+    value_function_kwargs: dict | None = None,
 ):
     """Compute a simple 1D upper envelope on a given common grid.
 

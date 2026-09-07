@@ -6,7 +6,8 @@ https://dx.doi.org/10.2139/ssrn.4181302
 
 """
 
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
+from typing import Optional, Tuple
 
 import numpy as np
 from numba import njit
@@ -19,12 +20,12 @@ def fues_numba(
     value: np.ndarray,
     expected_value_zero_savings: np.ndarray | float,
     value_function: Callable,
-    value_function_args: Tuple,
+    value_function_args: tuple,
     n_constrained_points_to_add=None,
     n_final_wealth_grid=None,
     jump_thresh=2,
     n_points_to_scan=10,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Drop suboptimal points and refine the endogenous grid, policy, and value.
 
     Computes the upper envelope over the overlapping segments of the
@@ -146,7 +147,7 @@ def fues_numba_unconstrained(
     policy: np.ndarray,
     jump_thresh=2,
     n_points_to_scan=10,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Remove suboptimal points from the endogenous grid, policy, and value function.
 
     Args:
@@ -170,7 +171,6 @@ def fues_numba_unconstrained(
             containing refined value function.
 
     """
-
     endog_grid = endog_grid[np.where(~np.isnan(value))[0]]
     policy = policy[np.where(~np.isnan(value))]
     value = value[np.where(~np.isnan(value))]
@@ -209,9 +209,9 @@ def scan_value_function(
     value: np.ndarray,
     policy: np.ndarray,
     exog_grid: np.ndarray,
-    jump_thresh: Optional[float] = 2,
-    n_points_to_scan: Optional[int] = 0,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    jump_thresh: float | None = 2,
+    n_points_to_scan: int | None = 0,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Scan the value function to remove suboptimal points and add intersection points.
 
     Args:
@@ -234,7 +234,6 @@ def scan_value_function(
             the optimal points are kept.
 
     """
-
     value_refined, policy_refined, endog_grid_refined = _initialize_refined_arrays(
         value, policy, endog_grid
     )
@@ -524,7 +523,7 @@ def _forward_scan(
     idx_current: int,
     idx_next: int,
     n_points_to_scan: int,
-) -> Tuple[float, int, int]:
+) -> tuple[float, int, int]:
     """Scan forward to check whether next point is optimal.
 
     Args:
@@ -550,7 +549,6 @@ def _forward_scan(
             the same value function.
 
     """
-
     is_next_on_same_value = 0
     idx_on_same_value = 0
     grad_next_on_same_value = 0
@@ -599,7 +597,7 @@ def _backward_scan(
     jump_thresh: float,
     idx_current: int,
     idx_next: int,
-) -> Tuple[float, int]:
+) -> tuple[float, int]:
     """Scan backward to check whether current point is optimal.
 
     Args:
@@ -623,7 +621,6 @@ def _backward_scan(
             previous point on the same value function.
 
     """
-
     is_before_on_same_value = 0
     sub_idx_point_before_on_same_value = 0
     grad_before_on_same_value = 0
@@ -695,7 +692,7 @@ def _linear_intersection(
     y3: float | np.ndarray,
     x4: float | np.ndarray,
     y4: float | np.ndarray,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Find the intersection of two lines.
 
     Args:
@@ -713,7 +710,6 @@ def _linear_intersection(
         tuple: x and y coordinates of the intersection point.
 
     """
-
     slope1 = (y2 - y1) / (x2 - x1)
     slope2 = (y4 - y3) / (x4 - x3)
 
@@ -741,8 +737,8 @@ def _augment_grids(
     min_wealth_grid: float,
     n_constrained_points_to_add: int,
     value_function: Callable,
-    value_function_args: Tuple,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    value_function_args: tuple,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Extends the endogenous wealth grid, value, and policy functions to the left.
 
     Args:
@@ -796,7 +792,7 @@ def _augment_grids(
 @njit
 def _initialize_refined_arrays(
     value: np.ndarray, policy: np.ndarray, endog_grid: np.ndarray
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     value_refined = np.empty_like(value)
     policy_refined = np.empty_like(policy)
     endog_grid_refined = np.empty_like(endog_grid)

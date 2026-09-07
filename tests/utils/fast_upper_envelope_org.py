@@ -5,7 +5,8 @@ The algorithm is based on Loretti I. Dobrescu and Akshay Shanker (2022):
 https://dx.doi.org/10.2139/ssrn.4181302
 
 """
-from typing import Callable, Optional, Tuple
+from collections.abc import Callable
+from typing import Optional, Tuple
 
 import numpy as np
 
@@ -17,7 +18,7 @@ def fast_upper_envelope_wrapper_org(
     exog_grid: np.ndarray,
     choice: int,  # noqa: U100
     compute_utility: Callable,  # noqa: U100
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Drop suboptimal points and refine the endogenous grid, policy, and value.
 
     Computes the upper envelope over the overlapping segments of the
@@ -95,9 +96,9 @@ def fast_upper_envelope(
     value: np.ndarray,
     policy: np.ndarray,
     exog_grid: np.ndarray,
-    jump_thresh: Optional[float] = 2,
-    b: Optional[float] = 1e-10,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    jump_thresh: float | None = 2,
+    b: float | None = 1e-10,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Remove suboptimal points from the endogenous grid, policy, and value function.
 
     Args:
@@ -289,7 +290,7 @@ def _scan_org(e_grid, vf, c, a_prime, m_bar, lb, fwd_scan_do=True):  # noqa: U10
                     j = np.copy(np.array([i]))[0] + 1
 
                 else:
-                    previous_opt_is_intersect = False  # noqa: F841
+                    previous_opt_is_intersect = False
                     if g_1 > g_j_minus_1:
                         previous_opt_is_intersect = True  # noqa: F841
 

@@ -33,7 +33,7 @@ TEST_RESOURCES_DIR = TEST_DIR / "resources"
 
 
 def utility_crra(
-    consumption: jnp.ndarray, choice: int, params: Dict[str, float]
+    consumption: jnp.ndarray, choice: int, params: dict[str, float]
 ) -> jnp.ndarray:
     utility_consumption = (consumption ** (1 - params["rho"]) - 1) / (1 - params["rho"])
     utility = utility_consumption - (1 - choice) * params["delta"]

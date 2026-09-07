@@ -256,7 +256,7 @@ def forward_scan(
     n_points_to_scan: int,
     is_scan_needed,
     jump_thresh: float,
-) -> Tuple[float, int]:
+) -> tuple[float, int]:
     """Find next point on same value function as most recent point on upper envelope.
 
     We use the forward scan to find the next point that lies on the same value
@@ -322,7 +322,7 @@ def backward_scan(
     n_points_to_scan: int,
     is_scan_needed,
     jump_thresh: float,
-) -> Tuple[float, int]:
+) -> tuple[float, int]:
     """Find previous point on same value function as idx_to_scan_from.
 
     We use the backward scan to find the preceding point that lies on the same value
