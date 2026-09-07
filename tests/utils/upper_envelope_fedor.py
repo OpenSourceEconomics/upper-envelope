@@ -5,7 +5,8 @@ https://github.com/fediskhakov/dcegm/blob/master/model_retirement.m
 
 """
 
-from typing import Callable, Dict, List, Tuple
+from collections.abc import Callable
+from typing import Dict, List, Tuple
 
 import numpy as np
 from scipy.optimize import brenth as root
@@ -17,10 +18,10 @@ def upper_envelope(
     policy: np.ndarray,
     value: np.ndarray,
     exog_grid: np.ndarray,
-    state_choice_vec: Dict,
-    params: Dict[str, float],
+    state_choice_vec: dict,
+    params: dict[str, float],
     compute_utility: Callable,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Runs the Upper Envelope algorithm and drops sub-optimal points.
     Calculates the upper envelope over the overlapping segments of the
     decision-specific value functions, which in fact are value "correspondences"
@@ -133,7 +134,7 @@ def upper_envelope(
 
 def locate_non_concave_regions(
     value: np.ndarray,
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """Locates non-concave regions.
     Find non-monotonicity in the endogenous wealth grid where a grid point
     to the right is smaller than its preceding point. Put differently, the
@@ -200,8 +201,8 @@ def locate_non_concave_regions(
 
 
 def compute_upper_envelope(
-    segments: List[np.ndarray],
-) -> Tuple[np.ndarray, np.ndarray]:
+    segments: list[np.ndarray],
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute upper envelope and refines value function correspondence.
     The upper envelope algorithm detects suboptimal points in the value function
     correspondence. Consequently, (i) the suboptimal points are removed and the
@@ -531,7 +532,7 @@ def _augment_grid(
     n_grid_wealth: int,
     params,
     compute_utility: Callable,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Extends the endogenous wealth grid, value, and policy function to the left.
 
     Args:
@@ -563,7 +564,6 @@ def _augment_grid(
             Shape (2, *n_grid_augmented*).
 
     """
-
     grid_points_to_add = np.linspace(min_wealth_grid, value[0, 1], n_grid_wealth // 10)[
         :-1
     ]
@@ -593,7 +593,7 @@ def _augment_grid(
 
 def _partition_grid(
     value_correspondence: np.ndarray, j: int
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Splits the grid into two parts, 1,..., j and j, j+1,..., J.
 
     Note that the index ``j``, after which the separation occurs,

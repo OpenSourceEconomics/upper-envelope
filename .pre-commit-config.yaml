@@ -42,7 +42,7 @@ repos:
       - id: python-use-type-annotations
       - id: text-unicode-replacement-char
   - repo: https://github.com/pycqa/isort
-    rev: 8.0.1
+    rev: 9.0.1
     hooks:
       - id: isort
         name: isort
@@ -55,13 +55,13 @@ repos:
   #       args:
   #         - --py37-plus
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 26.1.0
+    rev: 26.5.1
     hooks:
       - id: black
         language_version: python3.12
         exclude: tests/utils/fast_upper_envelope_org.py
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.4
+    rev: v0.16.6
     hooks:
       - id: ruff
         # exclude: |
@@ -70,7 +70,7 @@ repos:
         #     docs/source/conf.py|
         #   )$
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.7
+    rev: v1.7.8
     hooks:
       - id: docformatter
         args:
