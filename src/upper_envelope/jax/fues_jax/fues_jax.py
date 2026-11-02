@@ -6,8 +6,9 @@ https://dx.doi.org/10.2139/ssrn.4181302
 
 """
 
+from collections.abc import Callable
 from functools import partial
-from typing import Callable, Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import jax
 import jax.numpy as jnp
@@ -35,13 +36,13 @@ def fues_jax(
     value: jnp.ndarray,
     expected_value_zero_savings: jnp.ndarray | float,
     value_function: Callable,
-    value_function_args: Optional[Tuple] = (),
-    value_function_kwargs: Optional[Dict] = None,
+    value_function_args: tuple | None = (),
+    value_function_kwargs: dict | None = None,
     n_constrained_points_to_add=None,
     n_final_wealth_grid=None,
     jump_thresh=2,
     n_points_to_scan=10,
-) -> Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
+) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """Drop suboptimal points and refines the endogenous grid, policy, and value.
 
     Computes the upper envelope over the overlapping segments of the
@@ -185,7 +186,7 @@ def fues_jax_unconstrained(
     n_final_wealth_grid=None,
     jump_thresh=2,
     n_points_to_scan=10,
-) -> Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
+) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """Remove suboptimal points from the endogenous grid, policy, and value function.
 
     Args:
@@ -249,8 +250,8 @@ def scan_value_function(
     expected_value_zero_savings,
     n_final_wealth_grid: int,
     jump_thresh: float,
-    n_points_to_scan: Optional[int] = 0,
-) -> Tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
+    n_points_to_scan: int | None = 0,
+) -> tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """Scan the value function to remove suboptimal points and add intersection points.
 
     Args:
