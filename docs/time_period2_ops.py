@@ -24,7 +24,7 @@ def _parse_args() -> argparse.Namespace:
 
 
 def utility_crra_jax(
-    consumption: jnp.ndarray, choice: int, params: Dict[str, float]
+    consumption: jnp.ndarray, choice: int, params: dict[str, float]
 ) -> jnp.ndarray:
     utility_consumption = (consumption ** (1 - params["rho"]) - 1) / (1 - params["rho"])
     utility = utility_consumption - (1 - choice) * params["delta"]
@@ -50,7 +50,7 @@ policy_egm = np.genfromtxt(
     test_resources / f"pol{period}.csv", delimiter=",", dtype=float
 )
 
-params: Dict[str, float] = {"beta": 0.95, "rho": 1.95, "delta": 0.35}
+params: dict[str, float] = {"beta": 0.95, "rho": 1.95, "delta": 0.35}
 state_choice = {"lagged_choice": 0, "choice": 0}
 
 

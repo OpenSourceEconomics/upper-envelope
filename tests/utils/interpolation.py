@@ -141,7 +141,7 @@ def linear_interpolation_formula(
 
 def get_index_high_and_low(
     x: np.ndarray, x_new: np.ndarray | float
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Get index of the highest value in x that is smaller than x_new.
 
     Args:

@@ -158,7 +158,7 @@ def _find_linear_intersection(
     y3: float | jnp.ndarray,
     x4: float | jnp.ndarray,
     y4: float | jnp.ndarray,
-) -> Tuple[float | jnp.ndarray, float | jnp.ndarray]:
+) -> tuple[float | jnp.ndarray, float | jnp.ndarray]:
     """Find the linear intersection of two lines.
 
     Args:
@@ -176,7 +176,6 @@ def _find_linear_intersection(
         tuple: x and y coordinates of the intersection point.
 
     """
-
     slope1 = calc_gradient(x1, y1, x2, y2)
     slope2 = calc_gradient(x3, y3, x4, y4)
 
